@@ -12,6 +12,8 @@
 
 #define DEFAULT_LAN_PORT 	12476
 
+#define AP_INFO_MAX		2
+
 typedef enum {
     SM_STATUS_FINISH = 0,
     SM_STATUS_GETINFO,
