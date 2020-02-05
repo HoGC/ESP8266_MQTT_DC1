@@ -43,6 +43,7 @@
 8. WIFI信号灯常亮即成功连接WIFI 
 7. 长按总开关进入配网模式，用于重新配网
 8. 每次配网自动保存，可共存两个WIFI信息
+9. 长按开关1，进入Webserver配置模式
 
 
 
@@ -64,4 +65,19 @@
 ### OAT升级说明
 
 * 使用ota升级话题发送升级文件获取地址
-* 消息格式`{"url"="http://yourdomain.com:9001/ota/"}`
+* 消息格式`{"url"="http://yourdomain.com:9001/ota/"}`    
+
+
+### Webserver说明
+1. 长按开关1按键进入Webserver配置模式，wifi灯闪动    
+2. 使用手机或电脑连接名称为 Webserver 的热点
+3. 访问192.168.4.1
+
+* 主界面
+* <img src="./image/webserver.png"  height="210" width="300"> 
+
+* WIFI配置界面    
+*<img src="./image/wifi.png"  height="210" width="300">
+
+* OTA升级界面
+* <img src="./image/ota.png"  height="170" width="300">
