@@ -8,9 +8,25 @@
 3. 可查看电压、电流、功率
 4. 改造现成插座，简单，美观
 5. 间接有了智能台灯、智能风扇......
-6. APP远程控制：APP开发中 或 [使用机智云平台](https://github.com/HoGC/ESP8266_Gizwits_DC1)
 
 <img src="./image/DC1.png"> 
+
+### APP
+#### DC1 Assistant
+1. 支持ESPTOUCH配网
+2. 一键添加
+3. 仅支持DC1设备
+
+<img src="./image/DC1_Assistant.jpg" height="400"> 
+<img src="./image/DC1_Assistant1.jpg" height="400"> 
+
+#### DC1 Assistant
+1. 不支持ESPTOUCH配网
+2. 手动一个一个添加
+3. 支持所有MQTT设备
+
+<img src="./image/Mqtt_Dashboard.jpg" height="400"> 
+<img src="./image/Mqtt_Dashboard1.jpg" height="400"> 
 
 ### 使用方法
 1. 搭建MQTT服务器
@@ -74,10 +90,15 @@
 3. 访问192.168.4.1
 
 * 主界面
-* <img src="./image/webserver.png"  height="210" width="300"> 
+* <img src="./image/webserver.png"  height="210"> 
 
 * WIFI配置界面    
-*<img src="./image/wifi.png"  height="210" width="300">
+*<img src="./image/wifi.png"  height="210">
 
 * OTA升级界面
-* <img src="./image/ota.png"  height="170" width="300">
+* <img src="./image/ota.png"  height="190">
+
+
+### 其他平台
+* [机智云平台](https://github.com/HoGC/ESP8266_Gizwits_DC1)
+* [阿里云生活物联网平台](https://github.com/HoGC/esp-aliyun-dc1)
