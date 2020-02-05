@@ -8,20 +8,22 @@
 #define MQTT_BUF_SIZE		2048
 #define MQTT_KEEPALIVE		120	            /*second*/
 
-#define MQTT_USER			"username""
+#define MQTT_USER			"username"
 #define MQTT_PASS			"password"
 
-#define OTA_TOPIC           "/dc1/ota/%s"           //ota升级话题
+
+#define OTA_TOPIC           "/esp8266/ota/%s"       //ota升级话题
 #define LWT_TOPIC           "/dc1/lwt/%s"           //遗嘱话题
 #define BIRTH_TOPIC         "/dc1/birth/%s"         //出生话题
 
 #define STATUS_TOPIC        "/dc1/%s/status%d"      //状态话题
 #define CONTROL_TOPIC       "/dc1/%s/control%d"     //控制话题
 
+#define INFO_CONTROL_TOPIC  "/dc1/%s/info"          //信息控制话题
+
 #define POWER_TOPIC         "/dc1/%s/power"         //功率信息话题
 #define VOLTAGE_TOPIC       "/dc1/%s/voltage"       //电压信息话题
 #define CURRENT_TOPIC       "/dc1/%s/current"       //电流信息话题
-
 
 #define LWT_MESSAGE         "offline"
 

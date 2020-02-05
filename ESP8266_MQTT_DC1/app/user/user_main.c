@@ -11,6 +11,7 @@
 #include "driver/wifi.h"
 #include "driver/ota.h"
 #include "driver/dc1.h"
+#include "driver/webserver.h"
 
 //#define MAIN_DEBUG_ON
 #if defined(MAIN_DEBUG_ON)
@@ -26,6 +27,7 @@ u8 ota_topic[32]={""};							//ota升级话题
 u8 lwt_topic[32]={""};							//遗嘱话题
 u8 birth_topic[30]={""};						//出生话题
 
+u8 info_control_topic[30]={""};						//信息控制话题
 u8 status_topic[7][30]={"","","",""};				//状态话题
 u8 control_topic[4][30]={"","","",""};				//控制话题
 
@@ -142,11 +144,12 @@ void mqttConnectedCb(uint32_t *args) {
 	INFO("MQTT: Connected\r\n");
 	MQTT_Publish(client, birth_topic, "online", os_strlen("online"), 0,0);
 	MQTT_Subscribe(client,ota_topic, 0);
+	MQTT_Subscribe(client,info_control_topic, 0);
 	if(updata_status_check()){
 		MQTT_Publish(client, ota_topic, "updata_finish", os_strlen("updata_finish"), 0,0);
 	}
 	gpio_ret = dc1_read_gpio();
-	os_printf("gpio_ret:%02X",gpio_ret);
+	INFO("gpio_ret:%02X",gpio_ret);
 	for (i = 0; i < 4; i++){
 		if((gpio_ret & switch_bit) == switch_bit){
 			MQTT_Publish(client, status_topic[i], "1", os_strlen("1"), 0,1);
@@ -187,7 +190,8 @@ void mqttDataCb(uint32_t *args, const char* topic, uint32_t topic_len,
 	char *topicBuf = (char*) os_zalloc(topic_len + 1), *dataBuf =
 			(char*) os_zalloc(data_len + 1);
 	
-	u8 i;		
+	u8 i;	
+	u8 ret = 0;	
 
 	MQTT_Client* client = (MQTT_Client*) args;
 
@@ -209,11 +213,13 @@ void mqttDataCb(uint32_t *args, const char* topic, uint32_t topic_len,
 			MQTT_Publish(client, ota_topic, "ota_start", os_strlen("ota_start"), 0,0);
 			ota_upgrade(url_data,ota_finished_callback);
 		}
-	}
-
-
-	u8 ret = 0;
-    if (os_strcmp(topicBuf, control_topic[0]) == 0) {
+	}else if (os_strcmp(topicBuf, info_control_topic) == 0) {
+		if(os_strcmp(dataBuf, "1") == 0){
+            os_timer_arm(&OS_Timer_SendInfo, SENDINFO_TIME, 1);
+        }else if(os_strcmp(dataBuf, "0") == 0){
+            os_timer_disarm(&OS_Timer_SendInfo);
+        }
+	}else if (os_strcmp(topicBuf, control_topic[0]) == 0) {
         if(os_strcmp(dataBuf, "1") == 0){
             ret = set_switch(0,1);
 			if(ret){
@@ -288,6 +294,7 @@ void ICACHE_FLASH_ATTR get_mac(void) {
         os_sprintf(control_topic[i],CONTROL_TOPIC,mac_str,i);
         os_sprintf(status_topic[i],STATUS_TOPIC,mac_str,i);
     }
+	os_sprintf(info_control_topic,INFO_CONTROL_TOPIC,mac_str);
 	os_sprintf(status_topic[4],VOLTAGE_TOPIC,mac_str);
 	os_sprintf(status_topic[5],CURRENT_TOPIC,mac_str);
 	os_sprintf(status_topic[6],POWER_TOPIC,mac_str);
@@ -299,7 +306,6 @@ void ICACHE_FLASH_ATTR led_flash(void){
     wifi_led_switch(status);
     status=~status;
 }
-
 
 
 /**
@@ -324,7 +330,7 @@ void ICACHE_FLASH_ATTR send_info(void){
 void ICACHE_FLASH_ATTR key0_short(bool status){
 
     u8 i=0;
-    os_printf("keyShortPress\n");
+    INFO("keyShortPress\n");
 	if(status){
 		MQTT_Publish(&mqttClient, status_topic[0], "1", os_strlen("1"), 0,1);
 	}else{
@@ -336,7 +342,7 @@ void ICACHE_FLASH_ATTR key0_short(bool status){
 }
 
 void ICACHE_FLASH_ATTR key0_long(void){
-    os_printf("keyLongPress\n");
+    INFO("keyLongPress\n");
 	smartconfig_mode = true;
     os_timer_arm(&OS_Timer_LED, 100, 1);
     start_smartconfig(smartconfig_cd);
@@ -349,6 +355,24 @@ void ICACHE_FLASH_ATTR key1_short(bool status){
     }else{
         MQTT_Publish(&mqttClient, status_topic[1], "0", os_strlen("0"), 0,1);
     }
+}
+
+void ICACHE_FLASH_ATTR key1_long(void)
+{   
+	INFO("start webserver\n"); 
+	
+	os_timer_arm(&OS_Timer_LED, 100, 1);
+	
+	wifi_set_opmode(STATIONAP_MODE);
+	struct softap_config stationConf;
+	wifi_softap_get_config(&stationConf);
+	os_strcpy(stationConf.ssid, "Webserver");
+	stationConf.ssid_len = os_strlen("Webserver");
+	wifi_softap_set_config_current(&stationConf);
+
+	webserver_init(NULL);
+
+	wifi_station_disconnect();
 }
 
 void ICACHE_FLASH_ATTR key2_short(bool status){
@@ -370,6 +394,17 @@ void ICACHE_FLASH_ATTR key3_short(bool status){
 }
 
 
+void ICACHE_FLASH_ATTR led_flash_init(void){
+    os_timer_disarm(&OS_Timer_LED);
+    os_timer_setfn(&OS_Timer_LED, (os_timer_func_t *)led_flash, NULL);
+    os_timer_arm(&OS_Timer_LED, 500, 1);
+}
+
+void ICACHE_FLASH_ATTR send_info_init(void){
+    os_timer_disarm(&OS_Timer_SendInfo);
+    os_timer_setfn(&OS_Timer_SendInfo, (os_timer_func_t *)send_info, NULL);
+}
+
 void user_init(void) {
 
 	// 串口初始化
@@ -380,28 +415,15 @@ void user_init(void) {
 	system_uart_swap();
 	set_uart_cb(dc1_uart_data_handler);
 
-	// uart_init(115200, 115200);
-	// os_delay_us(60000);
-
-	userbin_check();
 	get_mac();
-
-	wifi_set_opmode(STATION_MODE); 
-	
-	//设置wifi信息存储数量
-	wifi_station_ap_number_set(2);
-	
 	mqtt_init();
+
+	led_flash_init();
+	send_info_init();
+
+	dc1_init(key0_short,key0_long,key1_short,key1_long,key2_short,NULL,key3_short,NULL);
+
+	wifi_set_opmode(STATION_MODE);
 	set_wifistate_cb(wifi_connect_cb, wifi_disconnect_cb);
-
-	//按键初始化
-	dc1_init(key0_short,key0_long,key1_short,NULL,key2_short,NULL,key3_short,NULL);
-
-    os_timer_disarm(&OS_Timer_LED);
-    os_timer_setfn(&OS_Timer_LED, (os_timer_func_t *)led_flash, NULL);
-    os_timer_arm(&OS_Timer_LED, 500, 1);
-
-    os_timer_disarm(&OS_Timer_SendInfo);
-    os_timer_setfn(&OS_Timer_SendInfo, (os_timer_func_t *)send_info, NULL);
 }
 
