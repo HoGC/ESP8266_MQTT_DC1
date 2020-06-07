@@ -111,25 +111,6 @@ void ICACHE_FLASH_ATTR ota_start_upgrade(const char *server_ip, uint16_t port,
 	}
 }
 
-//提取json数据
-uint8 ICACHE_FLASH_ATTR ota_get_josn_str(const char *pdata, const char *typ,char *dat) {
-	//const char needle[10] = typ;
-	uint8 ret;
-	char *PA;
-	char *PB;
-	PA = os_strstr(pdata, typ);
-	if(PA != NULL){
-		PA = PA + os_strlen(typ)+3;
-		PB = os_strchr(PA, '"');
-		os_strncpy(dat,PA,os_strlen(PA) - os_strlen(PB));
-		dat[(os_strlen(PA) - os_strlen(PB))]='\0';
-		ret = 1;
-	}else{
-		ret = 0;
-	}
-	return ret;
-}
-
 uint8_t ICACHE_FLASH_ATTR OTA_StrToIP(const int8_t* str, void *ip)
 {
 	    int i;

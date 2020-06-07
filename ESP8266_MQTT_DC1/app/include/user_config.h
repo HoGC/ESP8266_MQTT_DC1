@@ -25,6 +25,7 @@
 #ifndef __USER_CONFIG_H__
 #define __USER_CONFIG_H__
 
+#include "driver/udp_log.h"
 
 #endif
 

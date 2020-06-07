@@ -14,7 +14,7 @@
 #define I2C_INFO( format, ... )
 #endif
 
-//#define DC1_DEBUG_KEY
+// #define DC1_DEBUG_KEY
 
 #if defined(DC1_DEBUG_KEY)
 #define INFO( format, ... ) os_printf( format, ## __VA_ARGS__ )
@@ -184,7 +184,7 @@ void ICACHE_FLASH_ATTR logo_led_switch(bool bit_value){
 void ICACHE_FLASH_ATTR reverse_switch(uint16_t switch_ret,uint8_t num){
 
     uint16_t switch_bit=0x10;
-    os_printf("switch_ret:%02x",switch_ret);
+    INFO("switch_ret:%02x",switch_ret);
     if(num == 0){
         if(dc1_write_gpio((switch_ret ^ 0x80) & 0x80)){
             if((switch_ret & 0x80) == 0x80){
@@ -217,7 +217,7 @@ u8 ICACHE_FLASH_ATTR set_switch(uint8_t num, bool bit_value){
         return 0;
     }
     switch_ret &= 0xf0;
-    os_printf("switch_ret:%02x",switch_ret);
+    INFO("switch_ret:%02x\n",switch_ret);
     if(num == 0){
         if(bit_value == 1){
             gpio_send = switch_ret | 0x80;
@@ -228,12 +228,14 @@ u8 ICACHE_FLASH_ATTR set_switch(uint8_t num, bool bit_value){
         switch_bit=switch_bit<<(3-num);
         if(bit_value == 1){
             switch_ret = switch_ret | switch_bit;
-            os_printf("switch_bit:%02x",switch_ret);
+            INFO("switch_bit:%02x\n",switch_ret);
             gpio_send = switch_ret & 0xf0 | 0x80;
         }else{
+            uint8_t switch0_bit = switch_ret & 0x80;
+            INFO("switch0_bit: %02x\n", switch0_bit);
             switch_bit=~switch_bit;
             switch_ret = switch_ret & switch_bit;
-            gpio_send = switch_ret & 0xf0 | 0x80;
+            gpio_send = switch_ret & 0xf0 | switch0_bit;
         }
     }
     while (set_count--)
