@@ -63,7 +63,6 @@ LINKFLAGS_eagle.app.v6 = \
 	-Wl,--start-group					\
 	-lc					\
 	-lgcc					\
-	-lhal					\
 	-lphy	\
 	-lpp	\
 	-lnet80211	\

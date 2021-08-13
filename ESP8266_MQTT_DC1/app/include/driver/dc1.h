@@ -28,6 +28,8 @@ void ICACHE_FLASH_ATTR dc1_init(dc1_skey_function k0shortpress, dc1_lkey_functio
                                 dc1_skey_function k2shortpress, dc1_lkey_function k2longpress, 
                                 dc1_skey_function k3shortpress, dc1_lkey_function k3longpress);
 
+uint8_t ICACHE_FLASH_ATTR dc1_read_gpio();
+
 void ICACHE_FLASH_ATTR reverse_switch(uint16_t switch_ret,uint8_t num);
 u8 ICACHE_FLASH_ATTR set_switch(uint8_t num, bool bit_value);
 

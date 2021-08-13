@@ -155,6 +155,8 @@ typedef struct {
 void uart_init(UartBautRate uart0_br, UartBautRate uart1_br);
 void uart0_sendStr(const char *str);
 
+void set_uart_cb(recv_uart_callback temp_callback);
+
 
 ///////////////////////////////////////
 #define UART_FIFO_LEN  128  //define the tx fifo length

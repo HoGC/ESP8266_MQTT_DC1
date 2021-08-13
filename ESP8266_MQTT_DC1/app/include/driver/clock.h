@@ -96,6 +96,8 @@ int ICACHE_FLASH_ATTR clock_add_timer(clock_time_t time, uint8_t week_bit, int t
 void ICACHE_FLASH_ATTR clock_get_timer_task_item_info_josn(int id, char *json_str);
 //获取全部定时任务的信息
 int ICACHE_FLASH_ATTR clock_get_timer_task_info(user_timer_t *timer_info);
+//获取全部定时任务的信息
+void ICACHE_FLASH_ATTR clock_get_timer_task_info_json(char *json_str);
 
 //获取用于oled显示的字符串  "13.11    Tue    02.04"
 void ICACHE_FLASH_ATTR clock_get_oled_time(char *oled_str);
